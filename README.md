@@ -12,12 +12,19 @@ Automatizar o processo de:
 - cálculo de KPIs
 - geração de relatório final em Excel
 
+## Problema de negócio
+
+Empresas e analistas precisam monitorar preços de combustíveis por região, mas esse processo costuma ser manual, repetitivo e sujeito a erro.
+
+A automação reduz tempo operacional e melhora a consistência da análise.
+
 ## Escopo inicial
 
-- Fonte: ANP
-- Produto: Gasolina
+- Fonte: dados públicos da ANP
+- Produto: gasolina
 - Período: meses recentes
-- Saída: arquivo Excel com base tratada e indicadores
+- Estrutura: tabela única
+- Saída final: arquivo Excel com base tratada e KPIs
 
 ## Estrutura do projeto
 
