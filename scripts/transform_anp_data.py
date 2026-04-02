@@ -192,13 +192,25 @@ print("\nPreço médio por estado (dados limpos):")
 print(preco_medio_estado_clean.head(10))
 
 # ============================================================
-# EXPORTAR BASE TRATADA PARA EXCEL
+# EXPORTAR RELATÓRIO EM EXCEL (MULTI-ABAS)
 # ============================================================
 
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "output"
 OUTPUT_FILE = OUTPUT_PATH / "relatorio_anp_gasolina.xlsx"
 
-df.to_excel(OUTPUT_FILE, index=False)
+with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
+    
+    # Base tratada
+    df.to_excel(writer, sheet_name="Base_Dados", index=False)
+    
+    # KPI Estado
+    preco_medio_estado_clean.to_excel(writer, sheet_name="KPI_Estado")
+    
+    # KPI Mensal
+    preco_medio_mes.to_excel(writer, sheet_name="KPI_Mensal")
+    
+    # KPI Variação
+    variacao_estado.to_excel(writer, sheet_name="KPI_Variacao")
 
-print("\nArquivo Excel gerado com sucesso.")
+print("\nRelatório Excel completo gerado com sucesso.")
 print(f"Caminho do arquivo: {OUTPUT_FILE}")
