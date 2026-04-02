@@ -93,3 +93,16 @@ df["Mes"] = df["Data da Coleta"].dt.to_period("M")
 
 print("\nColuna de mês criada com sucesso.")
 print(df["Mes"].head())
+
+# ============================================================
+# KPI 1 — PREÇO MÉDIO POR ESTADO
+# ============================================================
+
+preco_medio_estado = (
+    df.groupby("Estado - Sigla")["Valor de Venda"]
+    .mean()
+    .sort_values(ascending=False)
+)
+
+print("\nPreço médio por estado:")
+print(preco_medio_estado.head(10))
