@@ -106,3 +106,16 @@ preco_medio_estado = (
 
 print("\nPreço médio por estado:")
 print(preco_medio_estado.head(10))
+
+# ============================================================
+# KPI 2 — PREÇO MÉDIO POR MÊS
+# ============================================================
+
+preco_medio_mes = (
+    df.groupby("Mes")["Valor de Venda"]
+    .mean()
+    .sort_index()
+)
+
+print("\nPreço médio por mês:")
+print(preco_medio_mes)
