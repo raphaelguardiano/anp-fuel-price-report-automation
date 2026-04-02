@@ -84,3 +84,12 @@ df["Data da Coleta"] = pd.to_datetime(
 
 print("\nTipo da coluna Data da Coleta:")
 print(df["Data da Coleta"].dtype)
+
+# ============================================================
+# CRIAR COLUNA DE MÊS
+# ============================================================
+
+df["Mes"] = df["Data da Coleta"].dt.to_period("M")
+
+print("\nColuna de mês criada com sucesso.")
+print(df["Mes"].head())
