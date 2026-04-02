@@ -72,3 +72,15 @@ df = df[df["Produto"] == "GASOLINA"]
 
 print("\nFiltro aplicado: somente GASOLINA")
 print(f"Dimensão após filtro: {df.shape}")
+
+# ============================================================
+# TRATAR DATA DA COLETA
+# ============================================================
+
+df["Data da Coleta"] = pd.to_datetime(
+    df["Data da Coleta"],
+    format="%d/%m/%Y"
+)
+
+print("\nTipo da coluna Data da Coleta:")
+print(df["Data da Coleta"].dtype)
