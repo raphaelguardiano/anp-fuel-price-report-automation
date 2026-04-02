@@ -177,3 +177,16 @@ df = df[
 
 print("\nDimensão após remoção de outliers:")
 print(df.shape)
+
+# ============================================================
+# KPI 1 (APÓS LIMPEZA) — PREÇO MÉDIO POR ESTADO
+# ============================================================
+
+preco_medio_estado_clean = (
+    df.groupby("Estado - Sigla")["Valor de Venda"]
+    .mean()
+    .sort_values(ascending=False)
+)
+
+print("\nPreço médio por estado (dados limpos):")
+print(preco_medio_estado_clean.head(10))
