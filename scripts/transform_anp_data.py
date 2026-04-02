@@ -190,3 +190,15 @@ preco_medio_estado_clean = (
 
 print("\nPreço médio por estado (dados limpos):")
 print(preco_medio_estado_clean.head(10))
+
+# ============================================================
+# EXPORTAR BASE TRATADA PARA EXCEL
+# ============================================================
+
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "output"
+OUTPUT_FILE = OUTPUT_PATH / "relatorio_anp_gasolina.xlsx"
+
+df.to_excel(OUTPUT_FILE, index=False)
+
+print("\nArquivo Excel gerado com sucesso.")
+print(f"Caminho do arquivo: {OUTPUT_FILE}")
