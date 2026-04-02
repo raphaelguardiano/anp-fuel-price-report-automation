@@ -13,20 +13,6 @@ RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "raw"
 print("Iniciando transformação dos dados...")
 
 # ============================================================
-# SCRIPT: TRANSFORMAÇÃO DOS DADOS DA ANP
-# OBJETIVO:
-# Preparar base limpa para análise
-# ============================================================
-
-from pathlib import Path
-import pandas as pd
-
-# Caminho dos dados brutos
-RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "raw"
-
-print("Iniciando transformação dos dados...")
-
-# ============================================================
 # LOCALIZAR ARQUIVOS
 # ============================================================
 
@@ -52,5 +38,24 @@ for arquivo in arquivos:
 # Junta todos os DataFrames em um só
 df = pd.concat(lista_dfs, ignore_index=True)
 
+# ============================================================
+# LIMPAR NOMES DAS COLUNAS
+# ============================================================
+
+df.columns = df.columns.str.replace("ï»¿", "", regex=False)
+
+print("\nColunas após limpeza:")
+for col in df.columns:
+    print("-", col)
+
 print("\nBase consolidada com sucesso.")
 print(f"Dimensão final: {df.shape}")
+
+# ============================================================
+# FILTRAR APENAS GASOLINA
+# ============================================================
+
+df = df[df["Produto"] == "GASOLINA"]
+
+print("\nFiltro aplicado: somente GASOLINA")
+print(f"Dimensão após filtro: {df.shape}")
