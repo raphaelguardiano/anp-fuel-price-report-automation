@@ -146,3 +146,34 @@ variacao_estado = (
 print("\nEstados com maior variação de preço:")
 print(variacao_estado.head(10))
 
+# ============================================================
+# INVESTIGAÇÃO — ESTADO SP
+# ============================================================
+
+df_sp = df[df["Estado - Sigla"] == "SP"]
+
+print("\nEstatísticas SP:")
+print(df_sp["Valor de Venda"].describe())
+
+# ============================================================
+# TRATAMENTO DE OUTLIERS (IQR)
+# ============================================================
+
+Q1 = df["Valor de Venda"].quantile(0.25)
+Q3 = df["Valor de Venda"].quantile(0.75)
+IQR = Q3 - Q1
+
+limite_inferior = Q1 - 1.5 * IQR
+limite_superior = Q3 + 1.5 * IQR
+
+print("\nLimites para outliers:")
+print(f"Inferior: {limite_inferior}")
+print(f"Superior: {limite_superior}")
+
+df = df[
+    (df["Valor de Venda"] >= limite_inferior) &
+    (df["Valor de Venda"] <= limite_superior)
+]
+
+print("\nDimensão após remoção de outliers:")
+print(df.shape)
