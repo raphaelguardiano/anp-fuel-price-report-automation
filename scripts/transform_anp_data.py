@@ -52,6 +52,19 @@ print("\nBase consolidada com sucesso.")
 print(f"Dimensão final: {df.shape}")
 
 # ============================================================
+# TRATAR VALOR DE VENDA
+# ============================================================
+
+# Substitui vírgula por ponto
+df["Valor de Venda"] = df["Valor de Venda"].str.replace(",", ".")
+
+# Converte para número
+df["Valor de Venda"] = df["Valor de Venda"].astype(float)
+
+print("\nTipo da coluna Valor de Venda após conversão:")
+print(df["Valor de Venda"].dtype)
+
+# ============================================================
 # FILTRAR APENAS GASOLINA
 # ============================================================
 
