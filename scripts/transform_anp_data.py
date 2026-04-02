@@ -133,3 +133,16 @@ preco_estado_mes = (
 print("\nPreço médio por estado e mês:")
 print(preco_estado_mes.head(15))
 
+# ============================================================
+# KPI 4 — VARIAÇÃO DE PREÇO POR ESTADO
+# ============================================================
+
+variacao_estado = (
+    df.groupby("Estado - Sigla")["Valor de Venda"]
+    .agg(lambda x: x.max() - x.min())
+    .sort_values(ascending=False)
+)
+
+print("\nEstados com maior variação de preço:")
+print(variacao_estado.head(10))
+
