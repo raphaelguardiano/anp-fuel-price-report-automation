@@ -1,17 +1,42 @@
-# Ambiente virtual
-venv/
-.venv/
-
-# Cache Python
+# =========================
+# PYTHON
+# =========================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Arquivos do sistema
+# =========================
+# AMBIENTE VIRTUAL
+# =========================
+venv/
+.venv/
+env/
+
+# =========================
+# SISTEMA OPERACIONAL
+# =========================
 .DS_Store
 Thumbs.db
 
-# Saídas geradas
+# =========================
+# EDITORES
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# LOGS E TEMPORÁRIOS
+# =========================
+*.log
+*.tmp
+
+# =========================
+# OUTPUT GERADO
+# =========================
 output/*.xlsx
 
-# Arquivos temporários
-*.log
+# =========================
+# JUPYTER (se usar no futuro)
+# =========================
+.ipynb_checkpoints/
