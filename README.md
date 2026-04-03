@@ -1,82 +1,71 @@
 # ANP Fuel Price Report Automation
 
-Projeto de portfólio focado na automação de análise de preços de combustíveis com dados públicos da ANP.
+Automação de análise de preços de combustíveis utilizando dados públicos da ANP.
 
-## Visão geral
+## Problema
 
-Este projeto foi desenvolvido com o objetivo de automatizar o processo de leitura, tratamento, análise e geração de relatório em Excel a partir de dados públicos de preços de combustíveis.
+A análise de preços de combustíveis por região normalmente envolve processos manuais, repetitivos e sujeitos a erro, especialmente ao lidar com múltiplos arquivos e consolidação de dados.
 
-A proposta foi transformar uma base bruta em uma entrega analítica estruturada, reduzindo trabalho manual e aumentando a confiabilidade das informações.
+## Solução
 
-## Problema de negócio
+Este projeto automatiza todo o pipeline de dados:
 
-O acompanhamento de preços de combustíveis por estado e período pode ser um processo manual, repetitivo e sujeito a erros, principalmente quando envolve múltiplos arquivos, tratamento de dados e consolidação de indicadores.
+* leitura de múltiplos arquivos CSV da ANP
+* consolidação da base
+* limpeza e padronização dos dados
+* tratamento de datas e valores
+* cálculo de indicadores (KPIs)
+* geração automática de relatório em Excel
 
-Esse projeto busca resolver esse problema por meio de uma automação simples e prática, com foco em análise de preços da gasolina.
+## Pipeline
 
-## Objetivo do projeto
+data/raw → data/processed → output
 
-Automatizar o fluxo de:
+* raw: dados brutos da ANP
+* processed: base tratada e pronta para análise
+* output: relatório final em Excel
 
-- leitura de múltiplos arquivos CSV da ANP
-- consolidação da base
-- limpeza e padronização dos dados
-- tratamento de preços e datas
-- cálculo de indicadores
-- geração de relatório final em Excel
+## Principais análises
 
-## Fonte de dados
+* preço médio por estado
+* preço médio por mês
+* variação de preço por estado
+* análise por estado e período
+* impacto de outliers nos resultados
 
-Os dados utilizados neste projeto são públicos e foram obtidos a partir da base da ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis), com foco em preços de combustíveis.
+## Entrega
 
-Recorte inicial do projeto:
+O script gera automaticamente um arquivo Excel com múltiplas abas:
 
-- produto: gasolina
-- período: janeiro e fevereiro de 2026
-- formato original: arquivos CSV
+* Base_Dados
+* KPI_Estado
+* KPI_Mensal
+* KPI_Variacao
 
-## Processo da automação
+Com:
 
-O pipeline desenvolvido segue as etapas abaixo:
+* colunas ajustadas
+* cabeçalho formatado
+* leitura otimizada
 
-1. leitura dos arquivos CSV
-2. consolidação em uma única base
-3. filtro do produto `GASOLINA`
-4. limpeza dos nomes das colunas
-5. conversão do valor de venda para formato numérico
-6. conversão da data de coleta para formato datetime
-7. criação de coluna mensal para análise temporal
-8. cálculo de KPIs
-9. tratamento de outliers com método IQR
-10. exportação automatizada para Excel
+## Tecnologias
 
-## Principais análises e KPIs
+* Python
+* pandas
+* xlsxwriter
 
-O projeto gera automaticamente:
+## Como executar
 
-- preço médio por estado
-- preço médio por mês
-- preço médio por estado e mês
-- variação de preço por estado
-- comparação antes e depois da remoção de outliers
+pip install -r requirements.txt
+python scripts/transform_anp_data.py
 
-## Estrutura do projeto
+## Resultado
 
-```text
-anp-fuel-price-report-automation/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── output/
-│   └── relatorio_anp_gasolina.xlsx
-│
-├── scripts/
-│   ├── inspect_anp_data.py
-│   └── transform_anp_data.py
-│
-├── README.md
-├── requirements.txt
-├── .gitignore
-└── LICENSE
+* redução de trabalho manual
+* maior consistência nos dados
+* geração rápida de relatórios analíticos
+
+## Autor
+
+Raphael Guardiano
+Projeto desenvolvido como parte do portfólio em análise e automação de dados.
