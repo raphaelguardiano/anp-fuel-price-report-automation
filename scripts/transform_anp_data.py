@@ -7,8 +7,14 @@
 from pathlib import Path
 import pandas as pd
 
-# Caminho dos dados brutos
+# Caminhos do projeto
 RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "raw"
+PROCESSED_PATH = Path(__file__).resolve().parent.parent / "data" / "processed"
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "output"
+
+# Garante que as pastas existam
+PROCESSED_PATH.mkdir(parents=True, exist_ok=True)
+OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 print("Iniciando transformação dos dados...")
 
@@ -30,13 +36,14 @@ lista_dfs = []
 
 for arquivo in arquivos:
     print(f"\nLendo arquivo: {arquivo.name}")
-    
     df_temp = pd.read_csv(arquivo, sep=";", encoding="latin1")
-    
     lista_dfs.append(df_temp)
 
 # Junta todos os DataFrames em um só
 df = pd.concat(lista_dfs, ignore_index=True)
+
+print("\nBase consolidada com sucesso.")
+print(f"Dimensão final: {df.shape}")
 
 # ============================================================
 # LIMPAR NOMES DAS COLUNAS
@@ -48,17 +55,11 @@ print("\nColunas após limpeza:")
 for col in df.columns:
     print("-", col)
 
-print("\nBase consolidada com sucesso.")
-print(f"Dimensão final: {df.shape}")
-
 # ============================================================
 # TRATAR VALOR DE VENDA
 # ============================================================
 
-# Substitui vírgula por ponto
-df["Valor de Venda"] = df["Valor de Venda"].str.replace(",", ".")
-
-# Converte para número
+df["Valor de Venda"] = df["Valor de Venda"].str.replace(",", ".", regex=False)
 df["Valor de Venda"] = df["Valor de Venda"].astype(float)
 
 print("\nTipo da coluna Valor de Venda após conversão:")
@@ -68,7 +69,7 @@ print(df["Valor de Venda"].dtype)
 # FILTRAR APENAS GASOLINA
 # ============================================================
 
-df = df[df["Produto"] == "GASOLINA"]
+df = df[df["Produto"] == "GASOLINA"].copy()
 
 print("\nFiltro aplicado: somente GASOLINA")
 print(f"Dimensão após filtro: {df.shape}")
@@ -173,7 +174,7 @@ print(f"Superior: {limite_superior}")
 df = df[
     (df["Valor de Venda"] >= limite_inferior) &
     (df["Valor de Venda"] <= limite_superior)
-]
+].copy()
 
 print("\nDimensão após remoção de outliers:")
 print(df.shape)
@@ -192,24 +193,26 @@ print("\nPreço médio por estado (dados limpos):")
 print(preco_medio_estado_clean.head(10))
 
 # ============================================================
+# SALVAR BASE TRATADA
+# ============================================================
+
+output_csv = PROCESSED_PATH / "base_anp_gasolina_tratada.csv"
+
+df.to_csv(output_csv, index=False, sep=";", encoding="utf-8-sig")
+
+print("\nBase tratada salva com sucesso.")
+print(f"Caminho: {output_csv}")
+
+# ============================================================
 # EXPORTAR RELATÓRIO EM EXCEL (MULTI-ABAS)
 # ============================================================
 
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / "output"
 OUTPUT_FILE = OUTPUT_PATH / "relatorio_anp_gasolina.xlsx"
 
 with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
-    
-    # Base tratada
     df.to_excel(writer, sheet_name="Base_Dados", index=False)
-    
-    # KPI Estado
     preco_medio_estado_clean.to_excel(writer, sheet_name="KPI_Estado")
-    
-    # KPI Mensal
     preco_medio_mes.to_excel(writer, sheet_name="KPI_Mensal")
-    
-    # KPI Variação
     variacao_estado.to_excel(writer, sheet_name="KPI_Variacao")
 
 print("\nRelatório Excel completo gerado com sucesso.")
