@@ -19,11 +19,19 @@ Este projeto automatiza todo o pipeline de dados:
 
 ## Pipeline
 
+```text
 data/raw → data/processed → output
+```
 
-* raw: dados brutos da ANP
-* processed: base tratada e pronta para análise
-* output: relatório final em Excel
+* **raw**: dados brutos da ANP
+* **processed**: base tratada e pronta para análise
+* **output**: relatório final em Excel
+
+## Dataset
+
+* Fonte: ANP (Agência Nacional do Petróleo)
+* Produto analisado: Gasolina
+* Período: meses recentes (amostra controlada)
 
 ## Principais análises
 
@@ -35,29 +43,45 @@ data/raw → data/processed → output
 
 ## Entrega
 
-O script gera automaticamente um arquivo Excel com múltiplas abas:
+O script gera automaticamente:
 
-* Base_Dados
-* KPI_Estado
-* KPI_Mensal
-* KPI_Variacao
+* base tratada em CSV
+* relatório Excel com múltiplas abas
 
-Com:
+Abas do Excel:
 
-* colunas ajustadas
-* cabeçalho formatado
-* leitura otimizada
+* `Base_Dados`
+* `KPI_Estado`
+* `KPI_Mensal`
+* `KPI_Variacao`
 
 ## Tecnologias
 
 * Python
 * pandas
 * xlsxwriter
+* openpyxl
 
 ## Como executar
 
+```bash
 pip install -r requirements.txt
 python scripts/transform_anp_data.py
+```
+
+## Screenshots
+
+### Base de dados tratada
+
+![Base\_Dados](assets/excel_base_dados.png)
+
+### KPI por estado
+
+![KPI\_Estado](assets/excel_kpi_estado.png)
+
+### KPI mensal
+
+![KPI\_Mensal](assets/excel_kpi_mensal.png)
 
 ## Resultado
 
@@ -68,4 +92,5 @@ python scripts/transform_anp_data.py
 ## Autor
 
 Raphael Guardiano
+
 Projeto desenvolvido como parte do portfólio em análise e automação de dados.
