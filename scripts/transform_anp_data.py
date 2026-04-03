@@ -217,18 +217,26 @@ with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
     variacao_estado.to_excel(writer, sheet_name="KPI_Variacao")
 
     workbook = writer.book
+    currency_format = workbook.add_format({
+    "num_format": "R$ #,##0.00"
+    })
 
     # Formato do cabeçalho
     header_format = workbook.add_format({
         "bold": True,
         "text_wrap": False,
         "valign": "top",
-        "fg_color": "#D9EAD3",
+        "bg_color": "#1F4E78",
+        "font_color": "white",
+        "align": "center",
         "border": 1
     })
 
     # Função auxiliar para formatar planilhas
     def formatar_aba(worksheet, dataframe):
+        col_idx = df.columns.get_loc("Valor de Venda")
+        ws_base.set_column(col_idx, col_idx, 12, currency_format)
+        
         # Congelar primeira linha
         worksheet.freeze_panes(1, 0)
 
