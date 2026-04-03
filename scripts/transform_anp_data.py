@@ -210,10 +210,58 @@ print(f"Caminho: {output_csv}")
 OUTPUT_FILE = OUTPUT_PATH / "relatorio_anp_gasolina.xlsx"
 
 with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
+    # Exportar abas
     df.to_excel(writer, sheet_name="Base_Dados", index=False)
     preco_medio_estado_clean.to_excel(writer, sheet_name="KPI_Estado")
     preco_medio_mes.to_excel(writer, sheet_name="KPI_Mensal")
     variacao_estado.to_excel(writer, sheet_name="KPI_Variacao")
+
+    workbook = writer.book
+
+    # Formato do cabeçalho
+    header_format = workbook.add_format({
+        "bold": True,
+        "text_wrap": False,
+        "valign": "top",
+        "fg_color": "#D9EAD3",
+        "border": 1
+    })
+
+    # Função auxiliar para formatar planilhas
+    def formatar_aba(worksheet, dataframe):
+        # Congelar primeira linha
+        worksheet.freeze_panes(1, 0)
+
+        # Aplicar formato no cabeçalho
+        for col_num, value in enumerate(dataframe.columns):
+            worksheet.write(0, col_num, value, header_format)
+
+        # Ajustar largura das colunas
+        for i, col in enumerate(dataframe.columns):
+            max_len = max(
+                len(str(col)),
+                dataframe[col].apply(lambda x: len(str(x))).max()
+            )
+            worksheet.set_column(i, i, min(max_len + 2, 25))
+
+    # Base_Dados
+    ws_base = writer.sheets["Base_Dados"]
+    formatar_aba(ws_base, df)
+
+    # KPI_Estado
+    ws_estado = writer.sheets["KPI_Estado"]
+    df_estado = preco_medio_estado_clean.reset_index()
+    formatar_aba(ws_estado, df_estado)
+
+    # KPI_Mensal
+    ws_mensal = writer.sheets["KPI_Mensal"]
+    df_mensal = preco_medio_mes.reset_index()
+    formatar_aba(ws_mensal, df_mensal)
+
+    # KPI_Variacao
+    ws_variacao = writer.sheets["KPI_Variacao"]
+    df_variacao = variacao_estado.reset_index()
+    formatar_aba(ws_variacao, df_variacao)
 
 print("\nRelatório Excel completo gerado com sucesso.")
 print(f"Caminho do arquivo: {OUTPUT_FILE}")
