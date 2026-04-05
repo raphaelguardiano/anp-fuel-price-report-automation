@@ -92,16 +92,16 @@ df = df[
     df["Produto"]
     .astype(str)
     .str.upper()
-    .str.contains("GASOLINA", na=False)
+    .str.strip() == "GASOLINA"
 ].copy()
 
 if df.empty:
     raise ValueError(
-        "Nenhum registro encontrado contendo 'GASOLINA'. "
+        "Nenhum registro encontrado para 'GASOLINA'. "
         "Verifique os valores da coluna Produto nos arquivos brutos."
     )
 
-print("\nFiltro aplicado: produtos contendo 'GASOLINA'")
+print("\nFiltro aplicado: somente GASOLINA")
 print(f"Dimensão após filtro: {df.shape}")
 
 # ============================================================
@@ -135,16 +135,11 @@ print(f"Dimensão após remoção de valores inválidos: {df.shape}")
 # TRATAR DATA DA COLETA
 # ============================================================
 
-try:
-    df["Data da Coleta"] = pd.to_datetime(
-        df["Data da Coleta"],
-        format="%d/%m/%Y",
-        errors="coerce"
-    )
-except Exception as e:
-    raise ValueError(
-        f"Erro ao converter 'Data da Coleta'. Detalhe: {e}"
-    )
+df["Data da Coleta"] = pd.to_datetime(
+    df["Data da Coleta"],
+    format="%d/%m/%Y",
+    errors="coerce"
+)
 
 datas_invalidas = df["Data da Coleta"].isnull().sum()
 if datas_invalidas > 0:
@@ -284,8 +279,8 @@ df_estado_export.columns = ["Estado - Sigla", "Valor de Venda"]
 df_mensal_export = preco_medio_mes.reset_index()
 df_mensal_export.columns = ["Mes", "Valor de Venda"]
 
-df_variacao_export = dispersao_estado.reset_index()
-df_variacao_export.columns = ["Estado - Sigla", "Desvio Padrao"]
+df_dispersao_export = dispersao_estado.reset_index()
+df_dispersao_export.columns = ["Estado - Sigla", "Desvio Padrao"]
 
 df_estado_mes_export = preco_estado_mes.reset_index()
 df_estado_mes_export.columns = ["Estado - Sigla", "Mes", "Valor de Venda"]
@@ -301,7 +296,7 @@ with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
     df.to_excel(writer, sheet_name="Base_Dados", index=False)
     df_estado_export.to_excel(writer, sheet_name="KPI_Estado", index=False)
     df_mensal_export.to_excel(writer, sheet_name="KPI_Mensal", index=False)
-    df_variacao_export.to_excel(writer, sheet_name="KPI_Dispersao", index=False)
+    df_dispersao_export.to_excel(writer, sheet_name="KPI_Dispersao", index=False)
     df_estado_mes_export.to_excel(writer, sheet_name="KPI_Estado_Mes", index=False)
 
     workbook = writer.book
@@ -333,18 +328,17 @@ with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
         for col_num, value in enumerate(dataframe.columns):
             worksheet.write(0, col_num, value, header_format)
 
-        # Formatar moeda, se existir coluna de valor monetário
-        colunas_monetarias = ["Valor de Venda"]
-        for coluna in colunas_monetarias:
-            if coluna in dataframe.columns:
-                col_idx = dataframe.columns.get_loc(coluna)
-                worksheet.set_column(col_idx, col_idx, 14, currency_format)
+        # Formatar moeda, se existir coluna monetária
+        if "Valor de Venda" in dataframe.columns:
+            col_idx = dataframe.columns.get_loc("Valor de Venda")
+            worksheet.set_column(col_idx, col_idx, 14, currency_format)
 
         # Ajustar largura das colunas
         for i, col in enumerate(dataframe.columns):
+            valores_como_texto = dataframe[col].fillna("").astype(str)
             max_len = max(
                 len(str(col)),
-                dataframe[col].astype(str).map(len).max()
+                valores_como_texto.str.len().max()
             )
             worksheet.set_column(i, i, min(max_len + 2, 30))
 
@@ -352,7 +346,7 @@ with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
     formatar_aba(writer.sheets["Base_Dados"], df)
     formatar_aba(writer.sheets["KPI_Estado"], df_estado_export)
     formatar_aba(writer.sheets["KPI_Mensal"], df_mensal_export)
-    formatar_aba(writer.sheets["KPI_Dispersao"], df_variacao_export)
+    formatar_aba(writer.sheets["KPI_Dispersao"], df_dispersao_export)
     formatar_aba(writer.sheets["KPI_Estado_Mes"], df_estado_mes_export)
 
 print("\nRelatório Excel gerado com sucesso.")
