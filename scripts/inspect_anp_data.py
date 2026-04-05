@@ -4,25 +4,14 @@
 # Entender a estrutura da base antes de qualquer transformação
 # ============================================================
 
-# Importa ferramentas para trabalhar com caminhos de arquivos
 from pathlib import Path
-
-# Importa a biblioteca principal de dados
 import pandas as pd
-
 
 # ============================================================
 # DEFINIR CAMINHO DOS DADOS
 # ============================================================
 
-# __file__ → caminho do arquivo atual (inspect_anp_data.py)
-# .resolve() → transforma em caminho absoluto
-# .parent → sobe para pasta "scripts"
-# .parent → sobe para raiz do projeto
-# depois entra em: data/raw
-
 RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "raw"
-
 
 # ============================================================
 # INÍCIO DA EXECUÇÃO
@@ -31,91 +20,155 @@ RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "raw"
 print("Iniciando inspeção dos arquivos...")
 print(f"Pasta analisada: {RAW_PATH.resolve()}")
 
-
 # ============================================================
 # LOCALIZAR ARQUIVOS CSV
 # ============================================================
 
-# Procura todos os arquivos .csv dentro da pasta
 arquivos = sorted(RAW_PATH.glob("*.csv"))
 
-print("\nArquivos CSV encontrados:")
+print(f"\nArquivos CSV encontrados: {len(arquivos)}")
 for arquivo in arquivos:
     print("-", arquivo.name)
 
-
 # ============================================================
-# VERIFICAR SE EXISTEM ARQUIVOS
+# VERIFICAÇÃO — PASTA NÃO PODE ESTAR VAZIA
 # ============================================================
 
 if not arquivos:
-    print("\nNenhum arquivo CSV foi encontrado em data/raw/")
-
+    raise FileNotFoundError(
+        "Nenhum arquivo CSV encontrado em data/raw/. "
+        "Verifique se os arquivos da ANP foram colocados na pasta correta."
+    )
 
 # ============================================================
-# SE EXISTIR ARQUIVO → LER O PRIMEIRO
+# LER APENAS O PRIMEIRO ARQUIVO COMO AMOSTRA
 # ============================================================
 
-else:
-    # Pega o primeiro arquivo da lista
-    primeiro_arquivo = arquivos[0]
+primeiro_arquivo = arquivos[0]
 
-    print(f"\nTentando ler o arquivo: {primeiro_arquivo.name}")
+print(f"\nInspecionando arquivo: {primeiro_arquivo.name}")
+print("(amostra — apenas o primeiro arquivo da lista)")
 
-    # Lê o CSV usando pandas
-    # sep=";" → separador de colunas
-    # encoding="latin1" → para lidar com acentos
-    df = pd.read_csv(primeiro_arquivo, sep=";", encoding="latin1")
+df = pd.read_csv(primeiro_arquivo, sep=";", encoding="latin1")
 
-    print("\nLeitura realizada com sucesso.")
+print("\nLeitura realizada com sucesso.")
 
+# ============================================================
+# LIMPAR NOMES DAS COLUNAS (BOM + ESPAÇOS)
+# ============================================================
 
-    # ========================================================
-    # TAMANHO DO DATASET
-    # ========================================================
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.replace("ï»¿", "", regex=False)
+)
 
-    # shape → (linhas, colunas)
-    print(f"Dimensão do arquivo: {df.shape}")
+# ============================================================
+# VISÃO GERAL
+# ============================================================
 
+print("\n--- INFO GERAL ---")
+df.info()
 
-    # ========================================================
-    # LISTAR COLUNAS
-    # ========================================================
+print("\n--- VALORES NULOS POR COLUNA ---")
+nulos = df.isnull().sum()
+nulos_relevantes = nulos[nulos > 0]
+print(nulos_relevantes if not nulos_relevantes.empty else "Nenhum valor nulo encontrado.")
 
-    print("\nColunas encontradas:")
-    for coluna in df.columns:
-        print("-", coluna)
+print("\n--- PRIMEIRAS LINHAS ---")
+print(df.head())
 
+# ============================================================
+# LISTAR COLUNAS
+# ============================================================
 
-    # ========================================================
-    # VER VALORES ÚNICOS DO PRODUTO
-    # ========================================================
+print("\nColunas encontradas:")
+for coluna in df.columns:
+    print("-", coluna)
 
-    print("\nValores únicos da coluna Produto:")
-    print(df["Produto"].unique())
-    
-    # ========================================================
-    # FILTRAR APENAS GASOLINA
-    # ========================================================
+# ============================================================
+# VALIDAR COLUNAS CRÍTICAS
+# ============================================================
 
-    df_gasolina = df[df["Produto"] == "GASOLINA"]
+colunas_criticas = ["Produto", "Valor de Venda", "Data da Coleta"]
+faltantes = [col for col in colunas_criticas if col not in df.columns]
 
-    print("\nApós filtro (somente GASOLINA):")
-    print(df_gasolina["Produto"].unique())
-    print(f"Quantidade de registros: {df_gasolina.shape[0]}")
-    
-    # ========================================================
-    # VER EXEMPLOS DA DATA DA COLETA
-    # ========================================================
+if faltantes:
+    raise KeyError(
+        f"Colunas críticas ausentes: {faltantes}. "
+        f"Colunas disponíveis: {df.columns.tolist()}"
+    )
 
-    print("\nExemplos da coluna Data da Coleta:")
-    print(df_gasolina["Data da Coleta"].head(10))
+# ============================================================
+# ANALISAR PRODUTOS
+# ============================================================
 
-    # ========================================================
-    # VER EXEMPLOS DO VALOR DE VENDA
-    # ========================================================
+print("\nValores únicos da coluna Produto:")
+print(df["Produto"].unique())
 
-    print("\nExemplos da coluna Valor de Venda:")
-    print(df_gasolina["Valor de Venda"].head(10))
-    print(f"Tipo atual da coluna Valor de Venda: {df_gasolina['Valor de Venda'].dtype}")
+# ============================================================
+# FILTRAR GASOLINA (FORMA ROBUSTA)
+# ============================================================
 
+df_gasolina = df[
+    df["Produto"]
+    .astype(str)
+    .str.upper()
+    .str.contains("GASOLINA", na=False)
+].copy()
+
+if df_gasolina.empty:
+    raise ValueError(
+        "Nenhum registro encontrado contendo 'GASOLINA'. "
+        "Verifique os valores únicos da coluna Produto."
+    )
+
+print("\nApós filtro (GASOLINA):")
+print(df_gasolina["Produto"].unique())
+print(f"Quantidade de registros: {df_gasolina.shape[0]}")
+
+# ============================================================
+# INSPECIONAR DATA
+# ============================================================
+
+print("\nExemplos da coluna Data da Coleta:")
+print(df_gasolina["Data da Coleta"].head(10))
+
+print("\n--- TESTE DE CONVERSÃO DE DATA ---")
+try:
+    datas_convertidas = pd.to_datetime(
+        df_gasolina["Data da Coleta"].head(5),
+        format="%d/%m/%Y"
+    )
+    print(datas_convertidas.tolist())
+except Exception as e:
+    print(f"AVISO: erro na conversão de datas → {e}")
+
+# ============================================================
+# INSPECIONAR VALOR DE VENDA
+# ============================================================
+
+print("\nExemplos da coluna Valor de Venda:")
+print(df_gasolina["Valor de Venda"].head(10))
+print(f"Tipo atual: {df_gasolina['Valor de Venda'].dtype}")
+
+print("\n--- TESTE DE CONVERSÃO DE PREÇO ---")
+try:
+    valores_convertidos = pd.to_numeric(
+        df_gasolina["Valor de Venda"]
+        .astype(str)
+        .str.replace(",", ".", regex=False),
+        errors="coerce"
+    )
+
+    print(valores_convertidos.describe())
+
+    invalidos = valores_convertidos.isnull().sum()
+    if invalidos > 0:
+        print(f"\nAVISO: {invalidos} valores inválidos detectados em 'Valor de Venda'.")
+
+    print("\nAmostra convertida:")
+    print(valores_convertidos.head(5).tolist())
+
+except Exception as e:
+    print(f"Erro na conversão de preços: {e}")
