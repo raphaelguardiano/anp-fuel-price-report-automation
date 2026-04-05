@@ -31,10 +31,6 @@ print(f"\nArquivos encontrados: {len(arquivos)}")
 for arquivo in arquivos:
     print("-", arquivo.name)
 
-# ============================================================
-# VERIFICAÇÃO — PASTA NÃO PODE ESTAR VAZIA
-# ============================================================
-
 if not arquivos:
     raise FileNotFoundError(
         "Nenhum arquivo CSV encontrado em data/raw/. "
@@ -42,47 +38,57 @@ if not arquivos:
     )
 
 # ============================================================
-# LER E JUNTAR OS ARQUIVOS
+# LER E VALIDAR OS ARQUIVOS
 # ============================================================
 
+colunas_criticas = ["Produto", "Valor de Venda", "Data da Coleta", "Estado - Sigla"]
 lista_dfs = []
 
 for arquivo in arquivos:
     print(f"\nLendo arquivo: {arquivo.name}")
-    df_temp = pd.read_csv(arquivo, sep=";", encoding="latin1")
+
+    try:
+        df_temp = pd.read_csv(arquivo, sep=";", encoding="latin1")
+    except Exception as e:
+        raise RuntimeError(
+            f"Erro ao ler o arquivo '{arquivo.name}'. "
+            f"Verifique se o arquivo está íntegro e no formato esperado. Detalhe: {e}"
+        )
+
+    # Limpa nomes das colunas já na leitura de cada arquivo
+    df_temp.columns = (
+        df_temp.columns
+        .str.strip()
+        .str.replace("ï»¿", "", regex=False)
+    )
+
+    faltantes = [col for col in colunas_criticas if col not in df_temp.columns]
+    if faltantes:
+        raise KeyError(
+            f"O arquivo '{arquivo.name}' não contém todas as colunas críticas. "
+            f"Faltando: {faltantes}. Colunas disponíveis: {df_temp.columns.tolist()}"
+        )
+
     lista_dfs.append(df_temp)
+
+if not lista_dfs:
+    raise ValueError(
+        "Nenhum DataFrame válido foi carregado. "
+        "Verifique os arquivos de entrada."
+    )
+
+# ============================================================
+# CONSOLIDAR BASE
+# ============================================================
 
 df = pd.concat(lista_dfs, ignore_index=True)
 
 print("\nBase consolidada com sucesso.")
 print(f"Dimensão total: {df.shape}")
 
-# ============================================================
-# LIMPAR NOMES DAS COLUNAS
-# ============================================================
-
-df.columns = (
-    df.columns
-    .str.strip()
-    .str.replace("ï»¿", "", regex=False)
-)
-
 print("\nColunas após limpeza:")
 for col in df.columns:
     print("-", col)
-
-# ============================================================
-# VALIDAR COLUNAS CRÍTICAS
-# ============================================================
-
-colunas_criticas = ["Produto", "Valor de Venda", "Data da Coleta", "Estado - Sigla"]
-faltantes = [col for col in colunas_criticas if col not in df.columns]
-
-if faltantes:
-    raise KeyError(
-        f"Colunas críticas ausentes: {faltantes}. "
-        f"Colunas disponíveis: {df.columns.tolist()}"
-    )
 
 # ============================================================
 # FILTRAR APENAS GASOLINA
@@ -117,7 +123,10 @@ df["Valor de Venda"] = pd.to_numeric(
 
 valores_invalidos = df["Valor de Venda"].isnull().sum()
 if valores_invalidos > 0:
-    print(f"\nAVISO: {valores_invalidos} valores inválidos em 'Valor de Venda' foram convertidos para NaN.")
+    print(
+        f"\nAVISO: {valores_invalidos} valores inválidos em 'Valor de Venda' "
+        f"foram convertidos para NaN e removidos."
+    )
 
 df = df.dropna(subset=["Valor de Venda"]).copy()
 
@@ -143,7 +152,10 @@ df["Data da Coleta"] = pd.to_datetime(
 
 datas_invalidas = df["Data da Coleta"].isnull().sum()
 if datas_invalidas > 0:
-    print(f"\nAVISO: {datas_invalidas} datas inválidas foram convertidas para NaT.")
+    print(
+        f"\nAVISO: {datas_invalidas} datas inválidas foram convertidas para NaT "
+        f"e removidas."
+    )
 
 df = df.dropna(subset=["Data da Coleta"]).copy()
 
@@ -203,7 +215,6 @@ if df.empty:
 # KPIs — TODOS CALCULADOS APÓS LIMPEZA
 # ============================================================
 
-# KPI 1 — Preço médio por estado
 preco_medio_estado = (
     df.groupby("Estado - Sigla")["Valor de Venda"]
     .mean()
@@ -214,7 +225,6 @@ preco_medio_estado = (
 print("\nPreço médio por estado (dados limpos):")
 print(preco_medio_estado.head(10))
 
-# KPI 2 — Preço médio por mês
 preco_medio_mes = (
     df.groupby("Mes")["Valor de Venda"]
     .mean()
@@ -225,7 +235,6 @@ preco_medio_mes = (
 print("\nPreço médio por mês (dados limpos):")
 print(preco_medio_mes)
 
-# KPI 3 — Preço médio por estado e mês
 preco_estado_mes = (
     df.groupby(["Estado - Sigla", "Mes"])["Valor de Venda"]
     .mean()
@@ -236,7 +245,6 @@ preco_estado_mes = (
 print("\nPreço médio por estado e mês (dados limpos):")
 print(preco_estado_mes.head(15))
 
-# KPI 4 — Dispersão de preço por estado (desvio padrão)
 dispersao_estado = (
     df.groupby("Estado - Sigla")["Valor de Venda"]
     .std()
@@ -264,7 +272,13 @@ else:
 # ============================================================
 
 output_csv = PROCESSED_PATH / "base_anp_gasolina_tratada.csv"
-df.to_csv(output_csv, index=False, sep=";", encoding="utf-8-sig")
+
+try:
+    df.to_csv(output_csv, index=False, sep=";", encoding="utf-8-sig")
+except Exception as e:
+    raise RuntimeError(
+        f"Erro ao salvar a base tratada em CSV. Detalhe: {e}"
+    )
 
 print("\nBase tratada salva com sucesso.")
 print(f"Caminho: {output_csv}")
@@ -291,63 +305,59 @@ df_estado_mes_export.columns = ["Estado - Sigla", "Mes", "Valor de Venda"]
 
 OUTPUT_FILE = OUTPUT_PATH / "relatorio_anp_gasolina.xlsx"
 
-with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
-    # Exportar abas
-    df.to_excel(writer, sheet_name="Base_Dados", index=False)
-    df_estado_export.to_excel(writer, sheet_name="KPI_Estado", index=False)
-    df_mensal_export.to_excel(writer, sheet_name="KPI_Mensal", index=False)
-    df_dispersao_export.to_excel(writer, sheet_name="KPI_Dispersao", index=False)
-    df_estado_mes_export.to_excel(writer, sheet_name="KPI_Estado_Mes", index=False)
+try:
+    with pd.ExcelWriter(OUTPUT_FILE, engine="xlsxwriter") as writer:
+        # Exportar abas
+        df.to_excel(writer, sheet_name="Base_Dados", index=False)
+        df_estado_export.to_excel(writer, sheet_name="KPI_Estado", index=False)
+        df_mensal_export.to_excel(writer, sheet_name="KPI_Mensal", index=False)
+        df_dispersao_export.to_excel(writer, sheet_name="KPI_Dispersao", index=False)
+        df_estado_mes_export.to_excel(writer, sheet_name="KPI_Estado_Mes", index=False)
 
-    workbook = writer.book
+        workbook = writer.book
 
-    # Formatos reutilizáveis
-    currency_format = workbook.add_format({
-        "num_format": "R$ #,##0.00"
-    })
+        currency_format = workbook.add_format({
+            "num_format": "R$ #,##0.00"
+        })
 
-    header_format = workbook.add_format({
-        "bold": True,
-        "text_wrap": False,
-        "valign": "top",
-        "bg_color": "#1F4E78",
-        "font_color": "white",
-        "align": "center",
-        "border": 1
-    })
+        header_format = workbook.add_format({
+            "bold": True,
+            "text_wrap": False,
+            "valign": "top",
+            "bg_color": "#1F4E78",
+            "font_color": "white",
+            "align": "center",
+            "border": 1
+        })
 
-    # ========================================================
-    # FUNÇÃO AUXILIAR DE FORMATAÇÃO
-    # ========================================================
+        def formatar_aba(worksheet, dataframe):
+            worksheet.freeze_panes(1, 0)
 
-    def formatar_aba(worksheet, dataframe):
-        # Congelar primeira linha
-        worksheet.freeze_panes(1, 0)
+            for col_num, value in enumerate(dataframe.columns):
+                worksheet.write(0, col_num, value, header_format)
 
-        # Aplicar formato no cabeçalho
-        for col_num, value in enumerate(dataframe.columns):
-            worksheet.write(0, col_num, value, header_format)
+            if "Valor de Venda" in dataframe.columns:
+                col_idx = dataframe.columns.get_loc("Valor de Venda")
+                worksheet.set_column(col_idx, col_idx, 14, currency_format)
 
-        # Formatar moeda, se existir coluna monetária
-        if "Valor de Venda" in dataframe.columns:
-            col_idx = dataframe.columns.get_loc("Valor de Venda")
-            worksheet.set_column(col_idx, col_idx, 14, currency_format)
+            for i, col in enumerate(dataframe.columns):
+                valores_como_texto = dataframe[col].fillna("").astype(str)
+                max_len = max(
+                    len(str(col)),
+                    valores_como_texto.str.len().max()
+                )
+                worksheet.set_column(i, i, min(max_len + 2, 30))
 
-        # Ajustar largura das colunas
-        for i, col in enumerate(dataframe.columns):
-            valores_como_texto = dataframe[col].fillna("").astype(str)
-            max_len = max(
-                len(str(col)),
-                valores_como_texto.str.len().max()
-            )
-            worksheet.set_column(i, i, min(max_len + 2, 30))
+        formatar_aba(writer.sheets["Base_Dados"], df)
+        formatar_aba(writer.sheets["KPI_Estado"], df_estado_export)
+        formatar_aba(writer.sheets["KPI_Mensal"], df_mensal_export)
+        formatar_aba(writer.sheets["KPI_Dispersao"], df_dispersao_export)
+        formatar_aba(writer.sheets["KPI_Estado_Mes"], df_estado_mes_export)
 
-    # Aplicar formatação em cada aba
-    formatar_aba(writer.sheets["Base_Dados"], df)
-    formatar_aba(writer.sheets["KPI_Estado"], df_estado_export)
-    formatar_aba(writer.sheets["KPI_Mensal"], df_mensal_export)
-    formatar_aba(writer.sheets["KPI_Dispersao"], df_dispersao_export)
-    formatar_aba(writer.sheets["KPI_Estado_Mes"], df_estado_mes_export)
+except Exception as e:
+    raise RuntimeError(
+        f"Erro ao gerar o relatório Excel. Detalhe: {e}"
+    )
 
 print("\nRelatório Excel gerado com sucesso.")
 print(f"Caminho: {OUTPUT_FILE}")
