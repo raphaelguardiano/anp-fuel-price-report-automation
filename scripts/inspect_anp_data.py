@@ -128,6 +128,34 @@ print(df_gasolina["Produto"].unique())
 print(f"Quantidade de registros: {df_gasolina.shape[0]}")
 
 # ============================================================
+# ANALISAR PRODUTOS
+# ============================================================
+
+print("\nValores únicos da coluna Produto:")
+print(df["Produto"].unique())
+
+# ============================================================
+# FILTRAR APENAS GASOLINA (ALINHADO AO ESCOPO DO PROJETO)
+# ============================================================
+
+df_gasolina = df[
+    df["Produto"]
+    .astype(str)
+    .str.upper()
+    .str.strip() == "GASOLINA"
+].copy()
+
+if df_gasolina.empty:
+    raise ValueError(
+        "Nenhum registro encontrado para 'GASOLINA'. "
+        "Verifique os valores únicos da coluna Produto."
+    )
+
+print("\nApós filtro (somente GASOLINA):")
+print(df_gasolina["Produto"].unique())
+print(f"Quantidade de registros: {df_gasolina.shape[0]}")
+
+# ============================================================
 # INSPECIONAR DATA
 # ============================================================
 
