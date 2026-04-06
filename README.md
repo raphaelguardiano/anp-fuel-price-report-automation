@@ -1,11 +1,8 @@
 # ANP Fuel Price Report Automation
 
-Automação de análise de preços de combustíveis com Python utilizando
-dados públicos da ANP.
+Automação de análise de preços de combustíveis com Python utilizando dados públicos da ANP, com foco em padronização, redução de trabalho manual e apoio à tomada de decisão recorrente.
 
-Este projeto transforma arquivos brutos da ANP em uma base tratada e um
-relatório analítico em Excel, reduzindo trabalho manual e aumentando a
-consistência da análise.
+Este projeto transforma arquivos brutos da ANP em uma base tratada e um relatório analítico em Excel, automatizando um processo que normalmente seria manual, reduzindo erros operacionais e permitindo análises recorrentes de forma padronizada.
 
 ------------------------------------------------------------------------
 
@@ -38,6 +35,8 @@ Foi desenvolvido um pipeline automatizado em Python que:
 -   remove outliers
 -   calcula indicadores
 -   gera automaticamente um relatório em Excel
+
+O resultado é um fluxo automatizado que permite gerar análises consistentes de forma recorrente, sem necessidade de intervenção manual.
 
 ------------------------------------------------------------------------
 
