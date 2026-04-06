@@ -133,6 +133,38 @@ A automação não apenas gera um relatório estruturado, mas também apoia deci
 
 ------------------------------------------------------------------------
 
+## 📌 Recomendações de Uso Operacional
+
+O relatório automatizado pode ser utilizado de forma recorrente para apoiar o acompanhamento contínuo dos preços de combustíveis.
+
+### 1. Executar o relatório periodicamente
+- **Ação:** rodar a automação em intervalos regulares (semanal ou mensal)
+- **Por quê:** permite acompanhar a evolução dos preços ao longo do tempo
+- **Benefício:** elimina trabalho manual e garante consistência na análise
+
+---
+
+### 2. Utilizar a análise por estado como base de comparação
+- **Ação:** comparar preços médios entre estados
+- **Por quê:** diferenças regionais são relevantes no comportamento dos preços
+- **Benefício:** identificação rápida de regiões com preços acima ou abaixo da média
+
+---
+
+### 3. Monitorar a dispersão de preços
+- **Ação:** observar estados com maior variação interna de preços
+- **Por quê:** alta dispersão pode indicar inconsistências ou oportunidades
+- **Benefício:** direciona análises mais aprofundadas
+
+---
+
+### 4. Integrar o relatório à rotina operacional
+- **Ação:** utilizar o relatório como parte do processo de análise periódica
+- **Por quê:** a automação reduz esforço manual e padroniza o processo
+- **Benefício:** ganho de eficiência e maior confiabilidade dos dados
+
+------------------------------------------------------------------------
+
 ## Entregas
 
 -   Base tratada em CSV
