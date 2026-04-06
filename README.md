@@ -85,6 +85,38 @@ O relatório foi estruturado para responder:
 
 ------------------------------------------------------------------------
 
+## 🧠 Decisões que o Relatório Apoia
+
+A automação não apenas gera um relatório estruturado, mas também apoia decisões práticas a partir dos dados analisados.
+
+### 1. Comparação de preços entre estados e regiões
+- **Dado utilizado:** preço médio por estado
+- **Decisão:** identificar regiões com preços acima ou abaixo da média
+- **Impacto:** melhor entendimento do posicionamento regional e suporte à análise de competitividade
+
+---
+
+### 2. Monitoramento da evolução dos preços ao longo do tempo
+- **Dado utilizado:** preço médio mensal
+- **Decisão:** identificar tendências de alta ou queda
+- **Impacto:** antecipação de movimentos de mercado e acompanhamento contínuo
+
+---
+
+### 3. Identificação de inconsistências ou variações internas
+- **Dado utilizado:** dispersão de preços por estado
+- **Decisão:** detectar regiões com alta variação de preços
+- **Impacto:** direcionamento de análises mais detalhadas ou investigação de anomalias
+
+---
+
+### 4. Análise de padrões por estado e período
+- **Dado utilizado:** combinação estado x mês
+- **Decisão:** identificar padrões recorrentes ou comportamentos específicos
+- **Impacto:** suporte a planejamento e acompanhamento operacional
+
+------------------------------------------------------------------------
+
 ## Principais descobertas
 
 -   Estados da região Norte apresentaram os maiores preços médios, com
