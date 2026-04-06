@@ -41,6 +41,24 @@ Foi desenvolvido um pipeline automatizado em Python que:
 
 ------------------------------------------------------------------------
 
+## 🔍 Hipóteses de Análise
+
+Embora o foco principal do projeto seja a automação do tratamento e da geração do relatório, a estrutura final também permite explorar algumas hipóteses analíticas relevantes sobre os preços de combustíveis.
+
+### 1. Existe variação relevante de preços entre estados e regiões
+A consolidação da base permite comparar preços médios por recorte geográfico, facilitando a identificação de diferenças regionais de comportamento.
+
+### 2. Existe dispersão significativa de preços dentro de um mesmo recorte geográfico
+A análise de dispersão ajuda a observar se os preços se mantêm relativamente homogêneos ou se apresentam alta variação dentro de estados ou regiões.
+
+### 3. Os preços apresentam comportamento recorrente ao longo do tempo
+A visualização por período permite acompanhar oscilações e identificar padrões temporais no comportamento dos preços.
+
+### 4. A diferença entre valores mínimos e máximos pode indicar pontos de atenção para monitoramento
+A análise de extremos ajuda a destacar recortes com maior amplitude de preços, o que pode ser útil para acompanhamento periódico e comparação de mercado.
+
+------------------------------------------------------------------------
+
 ## Pipeline
 
 data/raw → data/processed → output
