@@ -210,6 +210,39 @@ python scripts/transform_anp_data.py
 
 ------------------------------------------------------------------------
 
+## 💰 Aplicação como Serviço
+
+Este projeto pode ser aplicado como um serviço de automação de relatórios analíticos, voltado para empresas que precisam acompanhar dados de forma recorrente com consistência e baixo esforço manual.
+
+### Para quem é
+- empresas que trabalham com análise de preços ou dados recorrentes
+- negócios que utilizam Excel como ferramenta principal de análise
+- equipes que dependem de processos manuais para consolidar dados
+
+---
+
+### Problema que resolve
+- consolidação manual de múltiplos arquivos
+- inconsistência na padronização de dados
+- tempo elevado gasto na preparação da base
+- dificuldade de manter análises atualizadas
+
+---
+
+### Tipo de entrega
+- automação em Python para tratamento e consolidação de dados
+- geração de base tratada pronta para análise
+- relatório estruturado em Excel com indicadores e visualizações
+
+---
+
+### Frequência de uso
+- execução recorrente (semanal ou mensal)
+- atualização contínua da base e do relatório
+- suporte a acompanhamento periódico de indicadores
+
+------------------------------------------------------------------------
+
 ## Aprendizados
 
 -   a maior parte do trabalho em dados está na preparação da base
