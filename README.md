@@ -1,261 +1,398 @@
-# ANP Fuel Price Report Automation
+# ⛽ ANP Fuel Price Report Automation — Python
 
-Automação de análise de preços de combustíveis com Python utilizando dados públicos da ANP, com foco em padronização, redução de trabalho manual e apoio à tomada de decisão recorrente.
+Automação de tratamento, consolidação e análise de preços de combustíveis utilizando Python e dados públicos da ANP, com foco em reduzir trabalho manual, padronizar rotinas analíticas e gerar relatórios recorrentes em Excel.
 
-Este projeto transforma arquivos brutos da ANP em uma base tratada e um relatório analítico em Excel, automatizando um processo que normalmente seria manual, reduzindo erros operacionais e permitindo análises recorrentes de forma padronizada.
+---
 
-------------------------------------------------------------------------
+## 📌 Resumo executivo
 
-## Problema
+Este projeto automatiza o tratamento e a análise de dados públicos de preços de combustíveis da ANP.
 
-Bases públicas como as da ANP não vêm prontas para análise.
+O pipeline lê múltiplos arquivos CSV, consolida a base, padroniza colunas, trata inconsistências, filtra registros de gasolina, calcula indicadores e gera automaticamente um relatório analítico em Excel.
 
-Antes de qualquer insight, é necessário:
+A automação reduz trabalho manual, melhora a consistência da análise e cria uma estrutura reutilizável para relatórios recorrentes com dados públicos.
 
--   consolidar múltiplos arquivos
--   padronizar colunas
--   tratar valores inconsistentes
--   corrigir formatos de data e número
+---
 
-Esse processo manual é demorado, sujeito a erro e dificulta análises
-recorrentes.
+## 🧭 Como visualizar o projeto
 
-------------------------------------------------------------------------
+- Os dados brutos devem ser inseridos na pasta `/data/raw`.
+- A base tratada é gerada na pasta `/data/processed`.
+- O relatório final em Excel é gerado na pasta `/output`.
+- O script principal está na pasta `/scripts`.
+- As imagens do relatório estão na pasta `/assets`.
 
-## Solução
+---
 
-Foi desenvolvido um pipeline automatizado em Python que:
+## 📌 Contexto de negócio
 
--   lê múltiplos arquivos CSV da ANP
--   consolida os dados em uma única base
--   realiza limpeza e padronização
--   filtra apenas registros de gasolina
--   trata valores inválidos
--   converte datas e preços
--   remove outliers
--   calcula indicadores
--   gera automaticamente um relatório em Excel
+Bases públicas, como as disponibilizadas pela ANP, oferecem grande potencial analítico, mas normalmente exigem preparação antes de serem utilizadas em relatórios, dashboards ou análises recorrentes.
 
-O resultado é um fluxo automatizado que permite gerar análises consistentes de forma recorrente, sem necessidade de intervenção manual.
+Na prática, esse processo costuma envolver consolidação manual de arquivos, padronização de campos, correção de formatos, tratamento de inconsistências e montagem repetitiva de relatórios.
 
-------------------------------------------------------------------------
+Quando esse fluxo é feito manualmente, há maior risco de erro, perda de tempo e dificuldade para repetir a análise com novos períodos de dados.
 
-## 🔍 Hipóteses de Análise
+---
 
-Embora o foco principal do projeto seja a automação do tratamento e da geração do relatório, a estrutura final também permite explorar algumas hipóteses analíticas relevantes sobre os preços de combustíveis.
+## 🎯 Problema de negócio
+
+Empresas e profissionais que acompanham dados recorrentes frequentemente precisam transformar arquivos brutos em relatórios estruturados para apoiar decisões.
+
+No caso dos dados de combustíveis da ANP, antes de qualquer análise é necessário:
+
+- consolidar múltiplos arquivos CSV;
+- padronizar nomes de colunas;
+- tratar valores inconsistentes;
+- corrigir formatos de data e número;
+- filtrar o produto de interesse;
+- remover registros inválidos ou extremos;
+- gerar indicadores comparáveis.
+
+Esse processo manual é demorado, sujeito a falhas e dificulta a criação de uma rotina analítica confiável.
+
+---
+
+## ✅ Solução desenvolvida
+
+Foi desenvolvido um pipeline automatizado em Python para transformar arquivos brutos da ANP em uma base tratada e um relatório analítico em Excel.
+
+O fluxo automatizado realiza:
+
+- leitura de múltiplos arquivos CSV;
+- consolidação dos dados em uma única base;
+- limpeza e padronização das colunas;
+- conversão de datas e preços;
+- filtro de registros de gasolina;
+- tratamento de valores inválidos;
+- remoção de outliers;
+- cálculo de indicadores;
+- geração automática de relatório em Excel.
+
+O resultado é um processo reproduzível, que permite atualizar a análise com novos arquivos sem reconstruir manualmente todo o relatório.
+
+---
+
+## 🔄 Pipeline do projeto
+
+```text
+CSV brutos da ANP
+→ leitura automatizada
+→ consolidação dos arquivos
+→ limpeza e padronização
+→ filtro de gasolina
+→ tratamento de inconsistências
+→ remoção de outliers
+→ cálculo de KPIs
+→ base tratada em CSV
+→ relatório Excel automatizado
+```
+
+Fluxo de pastas:
+
+```text
+data/raw → data/processed → output
+```
+
+---
+
+## 🗂️ Dataset utilizado
+
+- **Fonte:** ANP — Agência Nacional do Petróleo, Gás Natural e Biocombustíveis
+- **Produto analisado:** Gasolina
+- **Período analisado:** janeiro de 2026 a fevereiro de 2026
+- **Registros finais após tratamento:** 33.942
+- **Finalidade:** uso de dados públicos para automação de relatório analítico e composição de portfólio.
+
+---
+
+## 🔍 Hipóteses de análise
+
+Embora o foco principal do projeto seja a automação do tratamento e da geração do relatório, a estrutura final permite explorar hipóteses analíticas relevantes sobre preços de combustíveis.
 
 ### 1. Existe variação relevante de preços entre estados e regiões
-A consolidação da base permite comparar preços médios por recorte geográfico, facilitando a identificação de diferenças regionais de comportamento.
 
-### 2. Existe dispersão significativa de preços dentro de um mesmo recorte geográfico
-A análise de dispersão ajuda a observar se os preços se mantêm relativamente homogêneos ou se apresentam alta variação dentro de estados ou regiões.
+A consolidação da base permite comparar preços médios por recorte geográfico, facilitando a identificação de diferenças regionais.
 
-### 3. Os preços apresentam comportamento recorrente ao longo do tempo
-A visualização por período permite acompanhar oscilações e identificar padrões temporais no comportamento dos preços.
+### 2. Existe dispersão significativa de preços dentro de um mesmo estado
 
-### 4. A diferença entre valores mínimos e máximos pode indicar pontos de atenção para monitoramento
-A análise de extremos ajuda a destacar recortes com maior amplitude de preços, o que pode ser útil para acompanhamento periódico e comparação de mercado.
+A análise de dispersão ajuda a observar se os preços se mantêm relativamente homogêneos ou se apresentam alta variação dentro de um mesmo recorte geográfico.
 
-------------------------------------------------------------------------
+### 3. Os preços apresentam variação ao longo do tempo
 
-## Pipeline
+A visualização por período permite acompanhar oscilações mensais e identificar movimentos de alta ou queda no preço médio.
 
-data/raw → data/processed → output
+### 4. A diferença entre valores mínimos e máximos pode indicar pontos de atenção
 
-------------------------------------------------------------------------
+A análise de extremos ajuda a destacar estados com maior amplitude de preços, o que pode direcionar monitoramentos e análises complementares.
 
-## Dataset
+---
 
--   Fonte: ANP (Agência Nacional do Petróleo)
--   Produto analisado: Gasolina
--   Período analisado: Jan/2026 a Fev/2026
--   Registros finais após tratamento: 33.942
+## 📈 Indicadores gerados
 
-------------------------------------------------------------------------
+O relatório foi estruturado para acompanhar:
 
-## Principais análises
+| Indicador | Descrição |
+|---|---|
+| Preço médio por estado | Média do preço da gasolina em cada UF |
+| Preço médio mensal | Evolução do preço médio ao longo do tempo |
+| Dispersão por estado | Variação interna dos preços dentro de cada UF |
+| Preço mínimo | Menor preço observado no recorte analisado |
+| Preço máximo | Maior preço observado no recorte analisado |
+| Quantidade de registros | Volume de observações disponíveis após tratamento |
 
-O relatório foi estruturado para responder:
+---
 
--   qual o preço médio da gasolina por estado
--   como o preço evolui ao longo do tempo
--   quais estados apresentam maior dispersão de preços
--   como o comportamento muda por estado e período
+## 📊 Entregas geradas
 
-------------------------------------------------------------------------
+O pipeline gera duas entregas principais:
 
-## 🧠 Decisões que o Relatório Apoia
+- base tratada em CSV;
+- relatório Excel com abas analíticas.
+
+Abas do relatório Excel:
+
+| Aba | Finalidade |
+|---|---|
+| `Base_Dados` | Base tratada consolidada |
+| `KPI_Estado` | Indicadores por estado |
+| `KPI_Mensal` | Indicadores por mês |
+| `KPI_Dispersao` | Análise de dispersão dos preços |
+| `KPI_Estado_Mes` | Cruzamento entre estado e mês |
+
+---
+
+## 🧠 Decisões que o relatório apoia
 
 A automação não apenas gera um relatório estruturado, mas também apoia decisões práticas a partir dos dados analisados.
 
 ### 1. Comparação de preços entre estados e regiões
-- **Dado utilizado:** preço médio por estado
-- **Decisão:** identificar regiões com preços acima ou abaixo da média
-- **Impacto:** melhor entendimento do posicionamento regional e suporte à análise de competitividade
 
----
+- **Dado utilizado:** preço médio por estado.
+- **Decisão apoiada:** identificar estados com preços acima ou abaixo da média observada.
+- **Impacto esperado:** melhorar o entendimento de diferenças regionais de preço.
 
 ### 2. Monitoramento da evolução dos preços ao longo do tempo
-- **Dado utilizado:** preço médio mensal
-- **Decisão:** identificar tendências de alta ou queda
-- **Impacto:** antecipação de movimentos de mercado e acompanhamento contínuo
 
----
+- **Dado utilizado:** preço médio mensal.
+- **Decisão apoiada:** acompanhar tendências de alta ou queda.
+- **Impacto esperado:** criar rotina de acompanhamento periódico.
 
-### 3. Identificação de inconsistências ou variações internas
-- **Dado utilizado:** dispersão de preços por estado
-- **Decisão:** detectar regiões com alta variação de preços
-- **Impacto:** direcionamento de análises mais detalhadas ou investigação de anomalias
+### 3. Identificação de variações internas
 
----
+- **Dado utilizado:** dispersão de preços por estado.
+- **Decisão apoiada:** detectar estados com maior variação interna de preços.
+- **Impacto esperado:** direcionar análises complementares para regiões com maior amplitude.
 
 ### 4. Análise de padrões por estado e período
-- **Dado utilizado:** combinação estado x mês
-- **Decisão:** identificar padrões recorrentes ou comportamentos específicos
-- **Impacto:** suporte a planejamento e acompanhamento operacional
 
-------------------------------------------------------------------------
+- **Dado utilizado:** combinação entre estado e mês.
+- **Decisão apoiada:** identificar comportamentos específicos por localidade e período.
+- **Impacto esperado:** apoiar comparações recorrentes e acompanhamento operacional.
 
-## Principais descobertas
+---
 
--   Estados da região Norte apresentaram os maiores preços médios, com
-    destaque para AM (\~6,95), RO (\~6,91) e RR (\~6,90)
+## 💡 Principais descobertas
 
--   Houve leve queda no preço médio entre janeiro e fevereiro de 2026
-    (de 6,3119 para 6,3004)
+A análise do período de janeiro a fevereiro de 2026 indicou alguns padrões relevantes:
 
--   Estados como PA, AL e MA apresentaram maior dispersão de preços,
-    indicando maior variação interna
+- Estados da região Norte apresentaram os maiores preços médios no período analisado, com destaque para **AM (~6,95)**, **RO (~6,91)** e **RR (~6,90)**.
 
--   São Paulo apresentou preço médio inferior (6,17), sugerindo maior
-    estabilidade e competitividade no mercado
+- Houve leve queda no preço médio da gasolina entre janeiro e fevereiro de 2026, de aproximadamente **6,3119** para **6,3004**.
 
-------------------------------------------------------------------------
+- Estados como **PA**, **AL** e **MA** apresentaram maior dispersão de preços, indicando maior variação interna nos registros analisados.
 
-## 📌 Recomendações de Uso Operacional
+- São Paulo apresentou preço médio inferior no período analisado, em torno de **6,17**. Uma hipótese possível é maior competição ou maior eficiência na cadeia de distribuição, mas essa interpretação exigiria dados adicionais.
+
+---
+
+## 📌 Interpretação analítica
+
+O principal valor do projeto está na automação do processo analítico, não em estabelecer explicações causais definitivas sobre preços de combustíveis.
+
+Os dados permitem identificar diferenças regionais, variações temporais e dispersões relevantes, mas não explicam sozinhos as causas dessas diferenças.
+
+Fatores como impostos estaduais, logística, distância de distribuição, concorrência local, perfil da amostra e dinâmica regional de mercado podem influenciar os preços, mas não foram modelados diretamente neste projeto.
+
+---
+
+## 📌 Recomendações de uso operacional
 
 O relatório automatizado pode ser utilizado de forma recorrente para apoiar o acompanhamento contínuo dos preços de combustíveis.
 
 ### 1. Executar o relatório periodicamente
-- **Ação:** rodar a automação em intervalos regulares (semanal ou mensal)
-- **Por quê:** permite acompanhar a evolução dos preços ao longo do tempo
-- **Benefício:** elimina trabalho manual e garante consistência na análise
 
----
+- **Ação recomendada:** rodar a automação em intervalos regulares, como semanal ou mensal.
+- **Justificativa:** permite acompanhar a evolução dos preços ao longo do tempo.
+- **Benefício esperado:** redução de trabalho manual e maior consistência na análise.
 
 ### 2. Utilizar a análise por estado como base de comparação
-- **Ação:** comparar preços médios entre estados
-- **Por quê:** diferenças regionais são relevantes no comportamento dos preços
-- **Benefício:** identificação rápida de regiões com preços acima ou abaixo da média
 
----
+- **Ação recomendada:** comparar preços médios entre estados.
+- **Justificativa:** diferenças regionais são relevantes no comportamento dos preços.
+- **Benefício esperado:** identificação rápida de regiões com preços acima ou abaixo da média.
 
 ### 3. Monitorar a dispersão de preços
-- **Ação:** observar estados com maior variação interna de preços
-- **Por quê:** alta dispersão pode indicar inconsistências ou oportunidades
-- **Benefício:** direciona análises mais aprofundadas
 
----
+- **Ação recomendada:** acompanhar estados com maior variação interna de preços.
+- **Justificativa:** alta dispersão pode indicar necessidade de análise complementar.
+- **Benefício esperado:** direcionamento de investigações mais detalhadas.
 
 ### 4. Integrar o relatório à rotina operacional
-- **Ação:** utilizar o relatório como parte do processo de análise periódica
-- **Por quê:** a automação reduz esforço manual e padroniza o processo
-- **Benefício:** ganho de eficiência e maior confiabilidade dos dados
 
-------------------------------------------------------------------------
+- **Ação recomendada:** utilizar o relatório como parte de um processo periódico de análise.
+- **Justificativa:** a automação padroniza o fluxo de preparação e geração de indicadores.
+- **Benefício esperado:** ganho de eficiência e maior confiabilidade na atualização dos dados.
 
-## Entregas
+---
 
--   Base tratada em CSV
--   Relatório Excel com abas:
-    -   Base_Dados
-    -   KPI_Estado
-    -   KPI_Mensal
-    -   KPI_Dispersao
-    -   KPI_Estado_Mes
+## ⚠️ Limitações da análise
 
-------------------------------------------------------------------------
+- O período analisado é curto: janeiro e fevereiro de 2026.
+- A análise considera apenas registros de gasolina.
+- Os resultados são descritivos e não indicam causalidade.
+- Diferenças regionais de preço podem estar associadas a fatores não analisados neste projeto, como impostos, logística, concorrência local, distância de distribuição e composição da amostra.
+- O valor do projeto está principalmente na automação do processo analítico, e não em previsões ou explicações causais sobre preços de combustíveis.
 
-## Estrutura do projeto
+---
 
-anp-fuel-price-report-automation/ ├── assets/ ├── data/ ├── scripts/ ├──
-output/ └── README.md
+## 🧱 Estrutura do projeto
 
-------------------------------------------------------------------------
+```text
+anp-fuel-price-report-automation/
+├── assets/
+│   └── imagens do relatório gerado
+├── data/
+│   ├── raw/
+│   └── processed/
+├── output/
+│   └── relatório Excel gerado
+├── scripts/
+│   └── transform_anp_data.py
+├── requirements.txt
+└── README.md
+```
 
-## Como executar
+---
 
+## ▶️ Como executar
+
+### 1. Clonar o repositório
+
+```bash
+git clone https://github.com/raphaelguardiano/anp-fuel-price-report-automation.git
+cd anp-fuel-price-report-automation
+```
+
+### 2. Instalar dependências
+
+```bash
 pip install -r requirements.txt
+```
 
+### 3. Inserir os arquivos brutos
+
+Adicione os arquivos CSV da ANP na pasta:
+
+```text
+data/raw
+```
+
+### 4. Executar o pipeline
+
+```bash
 python scripts/transform_anp_data.py
+```
 
-------------------------------------------------------------------------
+### 5. Consultar os resultados
 
-## Screenshots
+Após a execução, verifique:
 
+- a base tratada em `/data/processed`;
+- o relatório Excel em `/output`.
+
+---
+
+## 🖼️ Screenshots
+
+### Base tratada
 ![Base_Dados](assets/excel_base_dados.png)
+
+### Indicadores por estado
 ![KPI_Estado](assets/excel_kpi_estado.png)
+
+### Indicadores mensais
 ![KPI_Mensal](assets/excel_kpi_mensal.png)
+
+### Dispersão de preços
 ![KPI_Dispersao](assets/excel_kpi_dispersao.png)
+
+### Indicadores por estado e mês
 ![KPI_Estado_Mes](assets/excel_kpi_estado_mes.png)
 
-------------------------------------------------------------------------
+---
 
-## Tecnologias
+## 🛠️ Tecnologias utilizadas
 
--   Python
--   pandas
--   xlsxwriter
--   openpyxl
+- Python
+- pandas
+- xlsxwriter
+- openpyxl
 
-------------------------------------------------------------------------
+---
 
-## 💰 Aplicação como Serviço
+## 💼 Aplicação como serviço
 
-Este projeto pode ser aplicado como um serviço de automação de relatórios analíticos, voltado para empresas que precisam acompanhar dados de forma recorrente com consistência e baixo esforço manual.
+Este projeto representa um tipo de solução aplicável a empresas e profissionais que precisam transformar dados recorrentes em relatórios padronizados.
 
 ### Para quem é
-- empresas que trabalham com análise de preços ou dados recorrentes
-- negócios que utilizam Excel como ferramenta principal de análise
-- equipes que dependem de processos manuais para consolidar dados
 
----
+- Empresas que trabalham com análise de preços ou dados recorrentes.
+- Negócios que utilizam Excel como ferramenta principal de análise.
+- Equipes que dependem de processos manuais para consolidar dados.
+- Profissionais que precisam atualizar relatórios com frequência.
 
-### Problema que resolve
-- consolidação manual de múltiplos arquivos
-- inconsistência na padronização de dados
-- tempo elevado gasto na preparação da base
-- dificuldade de manter análises atualizadas
+### Problemas que resolve
 
----
+- Consolidação manual de múltiplos arquivos.
+- Inconsistência na padronização de dados.
+- Tempo elevado gasto na preparação da base.
+- Dificuldade de manter análises atualizadas.
+- Retrabalho na geração de relatórios periódicos.
 
 ### Tipo de entrega
-- automação em Python para tratamento e consolidação de dados
-- geração de base tratada pronta para análise
-- relatório estruturado em Excel com indicadores e visualizações
+
+- Automação em Python para tratamento e consolidação de dados.
+- Geração de base tratada pronta para análise.
+- Relatório estruturado em Excel com indicadores.
+- Processo reutilizável para execução recorrente.
+
+### Frequência de uso
+
+- Execução semanal.
+- Execução mensal.
+- Atualização sob demanda conforme chegada de novos arquivos.
 
 ---
 
-### Frequência de uso
-- execução recorrente (semanal ou mensal)
-- atualização contínua da base e do relatório
-- suporte a acompanhamento periódico de indicadores
+## 📌 Conclusão
 
-------------------------------------------------------------------------
+Este projeto demonstra como Python pode ser utilizado para transformar um processo manual de preparação de dados em um fluxo automatizado, padronizado e reutilizável.
 
-## Aprendizados
+A análise com dados da ANP serviu como caso prático para consolidar arquivos, tratar inconsistências, calcular indicadores e gerar um relatório final em Excel.
 
--   a maior parte do trabalho em dados está na preparação da base
--   automação só gera valor com lógica consistente
--   dados não tratados levam a análises erradas
--   consistência entre métricas é essencial
+O principal aprendizado do projeto é que a automação aumenta a confiabilidade da rotina analítica e permite que o esforço do analista seja direcionado para interpretação, acompanhamento e tomada de decisão, em vez de tarefas repetitivas de preparação de dados.
 
-------------------------------------------------------------------------
+---
 
-## Autor
+## 📎 Sobre o projeto
 
-Raphael Guardiano
+Este projeto faz parte da minha transição de carreira para a área de Análise de Dados.
 
-Projeto desenvolvido como parte da transição para a área de análise de
-dados, com foco em automação e geração de insights a partir de dados
-reais.
+Estou desenvolvendo projetos práticos com foco em:
+
+- análise de dados aplicada a negócios;
+- automação de relatórios;
+- tratamento e organização de dados;
+- criação de indicadores;
+- uso de Python em rotinas analíticas;
+- geração de entregas úteis para tomada de decisão.
